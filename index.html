@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class=" w-full h-screen bg-zinc-200 grid place-items-center">
+  <div class="bg-white rounded-lg w-lg p-4 gap-4 flex flex-col">
+    <h1 class="font-semibold text-2xl">Calculadora de cobre</h1>
+    <div class="group flex flex-col">
+      <label class="mb-1 block font-bold" for="diameter_id">Diâmetro</label>
+      <select class="border p-2 rounded border-zinc-400 bg-zinc-200" name="diameter_id" id="diameter_id">
+        <option value="">Selecione um valor</option>
+        <option value="1">1/4 (6,35mm)</option>
+        <option value="2">5/16 (7,94mm)</option>
+        <option value="3">3/8 (9,52mm)</option>
+        <option value="4">1/2 (12,7mm)</option>
+        <option value="5">5/8 (15,87mm)</option>
+        <option value="6">3/4 (19,05mm)</option>
+      </select>
+    </div>
+    <div class="group flex flex-col">
+      <label class="mb-1 block font-bold" for="unit_id">Unidade de entrada</label>
+      <select class="border p-2 rounded border-zinc-400 bg-zinc-200" name="unit_id" id="unit_id">
+        <option value="m">Metros (m)</option>
+        <option value="kg">Quilos (kg)</option>
+      </select>
+    </div>
+    <div class="group flex flex-col">
+      <label class="mb-1 block font-bold" for="unit_weight">Quantidade (Carga)</label>
+      <input class="border p-2 rounded border-zinc-400 bg-zinc-200" id="unit_weight" name="unit_weight" type="number" step="0.01" placeholder="Ex: 10.5" />
+    </div>
+    <div class="group flex flex-col">
+      <label class="mb-1 block font-bold" for="unit_price">Preço unitário</label>
+      <input class="border p-2 rounded border-zinc-400 bg-zinc-200" name="unit_price" type="number" step="0.1" id="unit_price" placeholder="Ex: 50.00" />
+    </div>
+    <button onclick="calc()" class="bg-emerald-500 rounded text-emerald-50 font-bold w-full p-2.5">Calcular resultados</button>
+    <span id="result" class="bg-zinc-300 rounded px-2 py-4 block text-center text-xl text-zinc-800">Aguardando dados</span>
+  </div>
+
+  <script>
+    const resultElm = document.querySelector('#result')
+    const diameterData = {
+        "1": { diameter: 0.126, weight: 1.9 },
+        "2": { diameter: 0.16,  weight: 2.4 },
+        "3": { diameter: 0.206, weight: 3.1 },
+        "4": { diameter: 0.28,  weight: 4.2 },
+        "5": { diameter: 0.353, weight: 5.3 },
+        "6": { diameter: 0.44,  weight: 6.6 }
+    }
+
+    const currencyFormat = new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    })
+
+    class CalculationLogicM {
+      execute ({ unitWeight, unitPrice, diameterValue }) {
+        let preResult = unitWeight * diameterValue
+        let costOfOneMeter = diameterValue * unitPrice
+        let costTotalXMeters = costOfOneMeter * unitWeight
+
+        let finalWeight = preResult.toFixed(3)
+        let finalPrice = costTotalXMeters.toFixed(3)
+
+        return `${finalWeight}kg = ${currencyFormat.format(finalPrice)}`
+      }
+    }
+
+    class CalculationLogicKg {
+      execute ({ unitWeight, unitPrice, coilWeight }) {
+        let aux1 = 15.0 * unitWeight
+        let aux2 = aux1 / coilWeight
+        let preFinalPrice = unitWeight * unitPrice
+
+        let finalLongitude = aux2.toFixed(3)
+        let finalPrice = preFinalPrice.toFixed(3)
+
+        return `${finalLongitude}m = ${currencyFormat.format(finalPrice)}`
+      }
+    }
+
+    class CalculationLogic {
+      mapStrategy = new Map()
+      key = ''
+
+      constructor (key) {
+        this.mapStrategy.set('m', new CalculationLogicM())
+        this.mapStrategy.set('kg', new CalculationLogicKg())
+        this.key = key
+      }
+
+      execute ({ unitWeight, unitPrice, coilWeight, diameterValue }) {
+        return this.mapStrategy.get(this.key).execute({ unitWeight, unitPrice, coilWeight, diameterValue })
+      }
+    }
+
+    function calc () {
+      const diameterIdElm = document.querySelector('#diameter_id')
+      const unitIdElm = document.querySelector('#unit_id')
+      const unitWeightElm = document.querySelector('#unit_weight')
+      const unitPriceElm = document.querySelector('#unit_price')
+
+      const diameterId = diameterIdElm.value
+      const unitValue = unitIdElm.value
+      const unitWeight = unitWeightElm.value
+      const unitPrice = unitPriceElm.value
+
+      if (!diameterId || isNaN(unitWeight) || isNaN(unitPrice)) {
+        resultElm.innerText = "⚠️ Preencha todos os campos!"
+        return
+      }
+
+      const diameterValue = diameterData[diameterId].diameter
+      const coilWeight = diameterData[diameterId].weight
+      let endResult = ''
+
+      const calcLogic = new CalculationLogic(unitValue)
+      const result = calcLogic.execute({ unitWeight, unitPrice, coilWeight, diameterValue })
+
+      resultElm.innerText = JSON.stringify(result)
+    }
+  </script>
+</body>
+</html>
