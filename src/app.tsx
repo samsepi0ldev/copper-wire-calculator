@@ -174,7 +174,7 @@ export function App() {
         </div>
       </main>
       <footer className='text-zinc-500 h-16 flex items-center justify-center'>
-        Feito por Elivelton Santos <a className='text-blue-400 underline' href='https://github.com/samsepi0ldev'>Github.</a>
+        Feito por Elivelton Santos <a className='text-blue-400 underline ml-1 ' href='https://github.com/samsepi0ldev'> Github.</a>
       </footer>
     </>
   )
