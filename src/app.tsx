@@ -1,5 +1,3 @@
-import { Github } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import {
   Card,
   CardContent,
@@ -7,8 +5,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { AccessCounter } from './components/access-counter'
 import { CalcForm } from './components/calc-form'
-import { Button } from './components/ui/button'
 
 export function App() {
   return (
@@ -41,6 +39,7 @@ export function App() {
               Github.
             </a>
           </p>
+          <AccessCounter />
         </div>
       </footer>
     </div>
