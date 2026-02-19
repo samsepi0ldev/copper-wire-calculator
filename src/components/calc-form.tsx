@@ -74,7 +74,6 @@ export function CalcForm() {
           name="diameterId"
           render={({ field }) => (
             <Select
-              defaultValue={'1'}
               name={field.name}
               value={field.value}
               onValueChange={field.onChange}
@@ -105,7 +104,6 @@ export function CalcForm() {
             name="key"
             render={({ field }) => (
               <Select
-                defaultValue={UNIT_KEYS[0].value}
                 name={field.name}
                 value={field.value}
                 onValueChange={field.onChange}
