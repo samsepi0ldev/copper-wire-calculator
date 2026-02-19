@@ -11,11 +11,14 @@ import { CalcForm } from './components/calc-form'
 export function App() {
   return (
     <>
-      <main className="w-full h-[calc(100%_-64px)] px-4 grid place-items-center">
+      <main className="w-full h-[calc(100%-64px)] px-4 grid place-items-center">
         <Card className="max-w-2xl w-full">
           <CardHeader>
             <CardTitle>Calculadora de fios de cobre</CardTitle>
-            <CardDescription>...</CardDescription>
+            <CardDescription>
+              Calcule rapidamente o custo e as conversões de fios de cobre com
+              base no diâmetro, quantidade e preço unitário.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <CalcForm />
