@@ -1,27 +1,45 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Counter } from 'counterapi'
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
+
+async function getCount() {
+  const counter = new Counter({ workspace: 'elivelton-santoss-team-2977' })
+  const views = await counter.get('first-counter-2977')
+
+  return { views: views.data.up_count }
+}
+
+async function trackEvent() {
+  const counter = new Counter({ workspace: 'elivelton-santoss-team-2977' })
+  const hasVisited = sessionStorage.getItem('page-views-incremented')
+
+  if (!hasVisited) {
+    try {
+      await counter.up('first-counter-2977')
+      sessionStorage.setItem('page-views-incremented', 'true')
+    } catch (error) {
+      console.error('Failed to track event:', error.message)
+    }
+  }
+}
 
 export function AccessCounter() {
-  const [pageViews, setPageViews] = useState(0)
-  const counter = new Counter({ workspace: 'elivelton-santoss-team-2977' })
-  async function trackEvent() {
-    const hasVisited = sessionStorage.getItem('page-views-incremented')
-    if (!hasVisited) {
-      try {
-        await counter.up('first-counter-2977')
-        sessionStorage.setItem('page-views-incremented', 'true')
-      } catch (error) {
-        console.error('Failed to track event:', error.message)
-      }
-    }
-    const clickOnPage = await counter.get('first-counter-2977')
-
-    setPageViews(clickOnPage.data.up_count)
-    console.log(hasVisited)
-  }
+  const queryClient = useQueryClient()
+  const query = useQuery({
+    queryKey: ['count-page-views'],
+    queryFn: getCount,
+  })
+  const mutation = useMutation({
+    mutationFn: trackEvent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['count-page-views'],
+      })
+    },
+  })
 
   useEffect(() => {
-    trackEvent()
+    mutation.mutate()
   }, [])
 
   return (
@@ -31,7 +49,7 @@ export function AccessCounter() {
         <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
       </span>
       <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">
-        {pageViews.toLocaleString()} VISITAS
+        {query.data?.views} VISITAS
       </span>
     </div>
   )
