@@ -7,7 +7,7 @@ import { DIAMETER_DATA, DIAMETER_VALUES, UNIT_KEYS } from '@/constants'
 import { makeCalculator } from '@/factory/make-calculator'
 import { maskCurrency, maskOnlyNumbersAndDot } from '@/utils/formatter'
 import { Button } from './ui/button'
-import { Field, FieldLabel } from './ui/field'
+import { Field, FieldError, FieldLabel } from './ui/field'
 import { Input } from './ui/input'
 import {
   Select,
@@ -64,19 +64,21 @@ export function CalcForm() {
       className="gap-4 flex flex-col text-zinc-200"
     >
       <div className="group flex flex-col">
-        <Field>
-          <FieldLabel>Diâmetro</FieldLabel>
-
-          <Controller
-            control={control}
-            name="diameterId"
-            render={({ field }) => (
+        <Controller
+          control={control}
+          name="diameterId"
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel>Diâmetro</FieldLabel>
               <Select
                 name={field.name}
                 value={field.value}
                 onValueChange={field.onChange}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger
+                  className="w-full"
+                  aria-invalid={fieldState.invalid}
+                >
                   <SelectValue placeholder="Selecione uma medida" />
                 </SelectTrigger>
                 <SelectContent position="popper">
@@ -89,17 +91,18 @@ export function CalcForm() {
                   </SelectGroup>
                 </SelectContent>
               </Select>
-            )}
-          />
-        </Field>
-        {formState.errors.diameterId ? (
-          <p className="text-xs text-red-400 font-bold">
-            {formState.errors.diameterId.message}
-          </p>
-        ) : null}
+              <FieldError errors={[fieldState.error]} />
+            </Field>
+          )}
+        />
       </div>
       <div className="group flex flex-col">
-        <Field>
+        <Field
+          data-invalid={
+            (formState.errors.key && true) ||
+            (formState.errors.linearWeight && true)
+          }
+        >
           <FieldLabel>Unidade a converter</FieldLabel>
 
           <div className="flex gap-2">
@@ -113,7 +116,10 @@ export function CalcForm() {
                     value={field.value}
                     onValueChange={field.onChange}
                   >
-                    <SelectTrigger className="w-full max-w-48">
+                    <SelectTrigger
+                      className="w-full max-w-48"
+                      aria-invalid={formState.errors.key && true}
+                    >
                       <SelectValue placeholder="Selecione uma unidade" />
                     </SelectTrigger>
                     <SelectContent position="popper">
@@ -128,11 +134,7 @@ export function CalcForm() {
                   </Select>
                 )}
               />
-              {formState.errors.key ? (
-                <p className="text-xs text-red-400 font-bold w-40">
-                  {formState.errors.key.message}
-                </p>
-              ) : null}
+              <FieldError errors={[formState.errors.key]} />
             </div>
             <Controller
               control={control}
@@ -141,6 +143,7 @@ export function CalcForm() {
                 <div className="flex-1 relative">
                   <Input
                     {...field}
+                    aria-invalid={formState.errors.linearWeight && true}
                     id="unit_weight"
                     placeholder="Quantidade. Ex: 10.5"
                     value={value ? String(value) : ''}
@@ -149,11 +152,7 @@ export function CalcForm() {
                       onChange(masked)
                     }}
                   />
-                  {formState.errors.linearWeight ? (
-                    <p className="absolute text-xs text-red-400 font-bold">
-                      {formState.errors.linearWeight.message}
-                    </p>
-                  ) : null}
+                  <FieldError errors={[formState.errors.linearWeight]} />
                 </div>
               )}
             />
@@ -164,13 +163,14 @@ export function CalcForm() {
       <Controller
         name="copperBasePrice"
         control={control}
-        render={({ field: { onChange, value, ...field } }) => (
+        render={({ field: { onChange, value, ...field }, fieldState }) => (
           <div className="group flex flex-col">
-            <Field>
+            <Field data-invalid={fieldState.invalid}>
               <FieldLabel>Preço unitário</FieldLabel>
 
               <Input
                 {...field}
+                aria-invalid={fieldState.invalid}
                 type="text"
                 id="unit_price"
                 placeholder="R$ 0,00"
@@ -189,11 +189,7 @@ export function CalcForm() {
                   onChange(Number(rawValue) / 100)
                 }}
               />
-              {formState.errors.copperBasePrice ? (
-                <p className="text-xs text-red-400 font-bold">
-                  {formState.errors.copperBasePrice.message}
-                </p>
-              ) : null}
+              <FieldError errors={[fieldState.error]} />
             </Field>
           </div>
         )}
